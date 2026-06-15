@@ -1,4 +1,4 @@
-# Ayatgar (آیاتگار) — High-Speed Persian Semantic Search Engine
+# Ayatgar (اَیاتگار) — High-Speed Persian Semantic Search Engine
 
 Ayatgar is a production-grade, hybrid semantic and textual search engine built to process and navigate massive classical Persian poetry datasets. Moving beyond simple keyword matching, Ayatgar utilizes vector embeddings to discover poems based on abstract concepts, emotions, and philosophical themes.
 
