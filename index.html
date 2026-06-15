@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اَیـاتـگـار — پایگاه کاوش هوشمند در سخن پارسی</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        
+        /* تعریف پالت رنگی اختصاصی و قدرتمند برای حالت شب و روز */
+        :root[data-theme="light"] {
+            --bg-main: #f0f0f3;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --hover-bg: #f1f5f9;
+        }
+        :root[data-theme="dark"] {
+            --bg-main: #0f0f11;
+            --bg-card: #151518;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #27272a;
+            --hover-bg: #1c1c21;
+        }
+
+        /* اعمال متغیرها روی المان‌ها */
+        body { background-color: var(--bg-main) !important; color: var(--text-main) !important; }
+        .theme-card { background-color: var(--bg-card) !important; border: 1px solid var(--border-color) !important; color: var(--text-main) !important; }
+        .theme-input { background-color: var(--bg-main) !important; border: 1px solid var(--border-color) !important; color: var(--text-main) !important; }
+        .theme-text-muted { color: var(--text-muted) !important; }
+        .theme-hover:hover { background-color: var(--hover-bg) !important; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-24 selection:bg-amber-500/30">
+
+    <div class="max-w-5xl mx-auto pt-8 px-4 flex justify-between items-center">
+        <button onclick="toggleTheme()" class="theme-card p-3 rounded-xl shadow-md hover:scale-105 transition-all cursor-pointer text-lg" id="themeToggleBtn">
+            🌙
+        </button>
+        <div class="text-center flex-1 ml-[-44px]">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-500 tracking-wide">اَیـاتـگـار</h1>
+            <p id="liveStatsSubtitle" class="theme-text-muted mt-2 text-sm font-light">در حال برقراری ارتباط با پایگاه داده اشعار فارسی...</p>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto mt-10 px-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        <div class="theme-card backdrop-blur-xl rounded-2xl p-4 h-[420px] flex flex-col shadow-xl">
+            <h2 class="text-sm font-bold theme-text-muted mb-3 flex justify-between items-center">
+                <span>گزینش سخنوران</span>
+                <button onclick="clearPoetFilters()" class="text-xs text-amber-500 hover:underline cursor-pointer">پاکسازی همه</button>
+            </h2>
+            
+            <input id="poetSearchInput" type="text" oninput="filterPoetList()"
+                   placeholder="جستجوی نام سراینده..." 
+                   class="w-full theme-input rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-500/50 mb-3">
+            
+            <div id="poetListContainer" class="overflow-y-auto flex-1 space-y-1.5 pr-1">
+                <label class="flex items-center space-x-2 space-x-reverse text-sm p-1.5 rounded-lg theme-hover cursor-pointer select-none">
+                    <input type="checkbox" id="allPoetsCheckbox" checked onchange="toggleAllPoets(this); executeSearch();"
+                           class="rounded border-gray-300 text-amber-500 focus:ring-0 accent-amber-500 h-4 w-4">
+                    <span class="text-amber-500 font-medium">همهٔ سخنوران</span>
+                </label>
+                <hr class="opacity-20 my-1" style="border-color: var(--border-color)">
+            </div>
+        </div>
+
+        <div class="md:col-span-3 space-y-6">
+            
+            <div class="flex space-x-2 space-x-reverse theme-card p-1 rounded-xl w-fit shadow-md">
+                <button id="tabSemantic" onclick="switchSearchType('semantic')" 
+                        class="px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold shadow">
+                    کاوش پنداره
+                </button>
+                <button id="tabText" onclick="switchSearchType('text')" 
+                        class="px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer theme-text-muted hover:text-amber-500 font-medium">
+                    کاوش واژه
+                </button>
+            </div>
+
+            <div class="theme-card rounded-2xl p-3 shadow-2xl space-y-3 sm:space-y-0 sm:flex sm:items-center sm:space-x-3 sm:space-x-reverse">
+                
+                <input id="searchInput" type="text" 
+                       placeholder="یافتن پنداره... " 
+                       class="w-full bg-transparent px-4 py-3 focus:outline-none placeholder-gray-400 text-lg">
+                
+                <div class="flex items-center space-x-3 space-x-reverse shrink-0 justify-between sm:justify-end">
+                    <div class="flex items-center theme-input rounded-xl px-3 py-1.5">
+                        <label for="limitInput" class="text-xs theme-text-muted ml-2 whitespace-nowrap">شمار نمایش:</label>
+                        <input id="limitInput" type="number" min="1" max="100" placeholder="10" value="10" onchange="executeSearch()"
+                               class="w-14 bg-transparent text-amber-500 focus:outline-none text-center font-bold text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
+
+                    <button onclick="executeSearch()" 
+                            class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 cursor-pointer shadow-lg whitespace-nowrap">
+                        بیاب
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading" class="hidden text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
+                <p class="theme-text-muted text-xs mt-2">در حال کاوش با استفاده از بردارها و کلمات کلیدی...</p>
+            </div>
+
+            <div class="space-y-4" id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <div id="poemModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 hidden">
+        <div class="theme-card w-full max-w-2xl rounded-2xl shadow-2xl max-h-[85vh] flex flex-col transform scale-95 transition-transform duration-300 overflow-hidden">
+            <div class="p-5 border-b flex justify-between items-center sticky top-0 bg-transparent backdrop-blur" style="border-color: var(--border-color)">
+                <div>
+                    <h3 id="modalTitle" class="text-xl font-bold text-amber-500">عنوان شعر</h3>
+                    <p id="modalPoet" class="theme-text-muted text-xs mt-1">نام سراینده</p>
+                </div>
+                <button onclick="closeModal()" class="theme-text-muted hover:text-amber-500 theme-input w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer text-sm font-bold">✕</button>
+            </div>
+            <div id="modalContent" class="p-8 overflow-y-auto space-y-4 text-center text-lg leading-loose font-light flex-1">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://127.0.0.1:8000';
+        let currentSearchType = 'semantic';
+        
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggleBtn');
+            
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.innerText = '☀️';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerText = '🌙';
+            }
+        }
+
+        window.onload = async function() {
+            try {
+                const statsResponse = await fetch(`${BACKEND_URL}/api/stats`);
+                const stats = await statsResponse.json();
+                // استفاده از کلمات سره و اشاره به حجم واقعی ۳ میلیون بیت سخن پارسی
+                document.getElementById('liveStatsSubtitle').innerText = 
+                 `کاوش هوشمندِ پنداره و واژه در ژرفای بیش از ۳ میلیون بیت از ${stats.total_poems.toLocaleString('fa')} سرودهٔ پارسی`;
+            } catch (error) {
+                console.error("خطا در فراخوانی آمار دیتابیس:", error);
+                document.getElementById('liveStatsSubtitle').innerText = "پایگاه کاوش هوشمند در سخن پارسی";
+            }
+
+            const container = document.getElementById('poetListContainer');
+            try {
+                const response = await fetch(`${BACKEND_URL}/poets`);
+                const poets = await response.json();
+                
+                poets.forEach(poet => {
+                    const label = document.createElement('label');
+                    label.className = "poet-item flex items-center space-x-2 space-x-reverse text-sm p-1.5 rounded-lg theme-hover cursor-pointer select-none transition-colors";
+                    // اتصال رویداد خودکار به تک‌تک چک‌باکس‌های داینامیک سرایندگان
+                    label.innerHTML = `
+                        <input type="checkbox" value="${poet}" onchange="poetCheckboxChanged(); executeSearch();"
+                               class="poet-checkbox rounded border-gray-300 text-amber-500 focus:ring-0 accent-amber-500 h-4 w-4">
+                        <span style="color: var(--text-main)">${poet}</span>
+                    `;
+                    container.appendChild(label);
+                });
+            } catch (error) {
+                console.error("خطا در لود لیست سخنوران:", error);
+            }
+        };
+
+        function toggleAllPoets(master) {
+            document.querySelectorAll('.poet-checkbox').forEach(cb => { cb.checked = false; });
+        }
+
+        function poetCheckboxChanged() {
+            const allPoetsCb = document.getElementById('allPoetsCheckbox');
+            const anyChecked = Array.from(document.querySelectorAll('.poet-checkbox')).some(cb => cb.checked);
+            allPoetsCb.checked = !anyChecked;
+        }
+
+        function clearPoetFilters() {
+            document.getElementById('allPoetsCheckbox').checked = true;
+            document.querySelectorAll('.poet-checkbox').forEach(cb => { cb.checked = false; });
+            document.getElementById('poetSearchInput').value = '';
+            filterPoetList();
+            executeSearch(); // اجرای خودکار پس از ریست کل فیلترها
+        }
+
+        function filterPoetList() {
+            const term = document.getElementById('poetSearchInput').value.trim();
+            document.querySelectorAll('.poet-item').forEach(item => {
+                const name = item.querySelector('span').innerText;
+                item.classList.toggle('hidden', !name.includes(term));
+            });
+        }
+
+        function switchSearchType(type) {
+            currentSearchType = type;
+            const tabSemantic = document.getElementById('tabSemantic');
+            const tabText = document.getElementById('tabText');
+            const inputField = document.getElementById('searchInput');
+
+            if (type === 'semantic') {
+                tabSemantic.className = "px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold shadow";
+                tabText.className = "px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer theme-text-muted hover:text-amber-500 font-medium";
+                inputField.placeholder = "یافتن پنداره... ";
+            } else {
+                tabText.className = "px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold shadow";
+                tabSemantic.className = "px-4 py-2 rounded-lg text-sm transition-all duration-200 cursor-pointer theme-text-muted hover:text-amber-500 font-medium";
+                inputField.placeholder = "یافتن واژه... ";
+            }
+            executeSearch(); // اجرای خودکار با جابجایی تب‌ها
+        }
+
+        function copyToClipboard(event, text) {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = `<span class="text-emerald-500 font-semibold text-[11px] bg-emerald-500/10 px-2 py-0.5 rounded">کپی شد!</span>`;
+                setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+            }).catch(err => {
+                console.error('خطا در کپی متن:', err);
+            });
+        }
+
+        async function executeSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            const container = document.getElementById('resultsContainer');
+            const loading = document.getElementById('loading');
+            
+            let limit = document.getElementById('limitInput').value.trim();
+            if (!limit) limit = 10; 
+
+            container.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            const allPoetsSelected = document.getElementById('allPoetsCheckbox').checked;
+            const activePoets = Array.from(document.querySelectorAll('.poet-checkbox')).filter(cb => cb.checked).map(cb => cb.value);
+
+            let urlParams = new URLSearchParams();
+            if (currentSearchType === 'semantic') {
+                urlParams.append('query', query);
+            } else {
+                urlParams.append('keyword', query);
+            }
+            urlParams.append('limit', limit);
+            
+            if (!allPoetsSelected && activePoets.length > 0) {
+                activePoets.forEach(p => urlParams.append('poets', p));
+            }
+
+            let endpoint = currentSearchType === 'semantic' 
+                ? `${BACKEND_URL}/search/semantic?${urlParams.toString()}`
+                : `${BACKEND_URL}/search/text?${urlParams.toString()}`;
+
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                
+                loading.classList.add('hidden');
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-center theme-text-muted py-8">شعری متناسب با معیارهای جستجوی شما یافت نشد.</p>`;
+                    return;
+                }
+
+                data.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = "theme-card p-6 rounded-xl hover:border-amber-500/50 transition-all duration-300 cursor-pointer shadow-md group relative overflow-hidden animate-fade-in-up theme-hover";
+                    card.style.animationDelay = `${index * 50}ms`;
+                    card.onclick = () => showFullPoemInModal(item.poem_id, item.verse_id);
+
+                    card.innerHTML = `
+                        <div class="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                            <button onclick="copyToClipboard(event, '${item.text.replace(/'/g, "\\'")}')" 
+                                    title="کپی کردن بیت"
+                                    class="text-xs theme-text-muted hover:text-amber-500 theme-input p-1.5 rounded-lg transition-all cursor-pointer">
+                                📋
+                            </button>
+                        </div>
+                        <div class="text-center text-xl font-medium group-hover:text-amber-500 transition-colors duration-200 py-2">
+                            ${item.text}
+                        </div>
+                        <div class="flex justify-between items-center mt-4 pt-3 border-t text-xs theme-text-muted" style="border-color: var(--border-color)">
+                            <span class="font-semibold theme-input px-2.5 py-1 rounded-md">${item.poet}</span>
+                            <span class="italic opacity-80">${item.cat_path.split(' / ')[1] || ''}</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                container.innerHTML = `<p class="text-center text-red-400 py-8">خطا در اتصال به سرور اَیـاتـگـار: ${error.message}</p>`;
+            }
+        }
+
+        async function showFullPoemInModal(poemId, activeVerseId) {
+            const modal = document.getElementById('poemModal');
+            const modalBody = modal.querySelector('div');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = '<div class="text-center theme-text-muted py-8">در حال فراخوانی غزل کامل از سرور...</div>';
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                modalBody.classList.remove('scale-95');
+            }, 10);
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/poem/${poemId}`);
+                const data = await response.json();
+
+                document.getElementById('modalTitle').innerText = data.title;
+                document.getElementById('modalPoet').innerText = data.poet;
+
+                content.innerHTML = '';
+                
+                if (data.verses && data.verses.length > 0) {
+                    data.verses.forEach(v => {
+                        const verseDiv = document.createElement('div');
+                        if (activeVerseId && v.id === activeVerseId) {
+                            verseDiv.className = "bg-amber-500/10 border-y border-amber-500/25 py-3 px-4 rounded-xl my-3 text-amber-500 font-semibold scale-[1.01] shadow-lg transition-all";
+                        } else {
+                            verseDiv.className = "py-2 px-4 border-b font-light theme-hover transition-colors";
+                            verseDiv.style.borderColor = "var(--border-color)";
+                        }
+                        verseDiv.innerText = v.text;
+                        content.appendChild(verseDiv);
+                    });
+                } 
+                else if (data.full_text) {
+                    const lines = data.full_text.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            const lineDiv = document.createElement('div');
+                            lineDiv.className = "py-2 px-4 theme-hover transition-colors font-light";
+                            lineDiv.innerText = line.trim();
+                            content.appendChild(lineDiv);
+                        }
+                    });
+                } else {
+                    content.innerHTML = '<div class="text-center theme-text-muted py-8">متن این شعر در دیتابیس یافت نشد.</div>';
+                }
+
+            } catch (error) {
+                content.innerHTML = `<p class="text-red-400 text-sm py-8">خطا در دریافت اطلاعات شعر: ${error.message}</p>`;
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('poemModal');
+            const modalBody = modal.querySelector('div');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalBody.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        document.getElementById('poemModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') executeSearch();
+        });
+    </script>
+</body>
+</html>
