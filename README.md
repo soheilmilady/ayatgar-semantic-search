@@ -1,56 +1,66 @@
-Ayatgar (آیاتگار) — High-Speed Persian Semantic Search Engine
-Ayatgar is a production-grade, hybrid semantic and textual search engine built to process and navigate massive classical Persian poetry datasets. Moving beyond simple keyword matching, Ayatgar utilizes vector embeddings to discover poems based on abstract concepts, emotions, and philosophical themes.
+# Ayatgar (آیاتگار) — High-Speed Persian Semantic Search Engine
 
-Key Features
-Hybrid Search Architecture: Combines fast textual pattern matching (ILIKE indexing) with deep semantic vector exploration using pgvector.
+Ayatgar is a production-grade, hybrid semantic and textual search engine built to process and navigate massive classical Persian poetry datasets[cite: 1, 2]. 
 
-Local Embedded Intelligence: Utilizes intfloat/multilingual-e5-large-instruct mapped onto local hardware capabilities, fully optimized for GPU VRAM execution via FP16 precision.
+---
 
-Production-Ready Data Ingestion: Includes custom high-speed local indexing and import scripts, maximizing transaction throughput during data injection directly into a structured PostgreSQL instance running inside Docker.
+## 🚀 Key Features
 
-Modern Interactive UI: A high-fidelity, responsive frontend built with TailwindCSS featuring dynamic speaker filtering, live statistical counters, and fully isolated modal renderers for reading full poems.
+* **Hybrid Search:** Combines fast textual matching (`ILIKE`) with deep semantic exploration using **pgvector**[cite: 1, 2].
+* **AI Intelligence:** Utilizes `intfloat/multilingual-e5-large-instruct` optimized for GPU execution[cite: 1, 3].
+* **High-Speed Ingestion:** Custom scripts for batch vector injection into PostgreSQL[cite: 2, 3].
+* **Modern UI:** Responsive frontend built with TailwindCSS[cite: 5].
 
-Architectural Overview
-1. Database Schema & Indexing
-The storage layers are divided into relational entities optimized for fast similarity lookups:
+---
 
-Poems Table: Holds global metadata, full text mapping, and complete document embeddings.
+## 🏗️ Architectural Overview
 
-Verses Table: Maps individual verses, maintaining strict relational indexing (FOREIGN KEY) linked to parent records.
+### 1. Database Schema
+* **Poems Table:** Metadata, full text, and document embeddings[cite: 2, 3].
+* **Verses Table:** Relational verse mapping with foreign keys[cite: 2, 3].
+* **HNSW Indexing:** Optimized for sub-millisecond similarity search[cite: 2].
 
-HNSW Indexing: Employs Hierarchical Navigable Small World (HNSW) indexing charts (vector_cosine_ops) inside PostgreSQL to achieve sub-millisecond retrieval speeds over hundreds of thousands of items.
+### 2. Backend
+Powered by **FastAPI** with connection pooling for high-concurrency throughput[cite: 1, 2].
 
-2. Backend & System Orchestration
-Powered by FastAPI utilizing a connection pool strategy to maintain efficient multi-client query throughput and optimized resource utilization.
+---
 
-Repository Structure
-src/main.py: FastAPI Application & Search Controllers
+## 📁 Repository Structure
 
-src/database.py: Database pooling configurations
+.
+├── src/
+│   ├── main.py            # FastAPI Application
+│   └── database.py        # Database configurations
+├── scripts/
+│   ├── local_indexer.py   # GPU embedding generator
+│   └── db_importer.py     # Batch data importer
+├── ui/
+│   └── index.html         # TailwindCSS Frontend
+├── .gitignore             # Protection rules
+└── requirements.txt       # Dependencies
 
-scripts/local_indexer.py: GPU-Accelerated embedding generator
+---
 
-scripts/db_importer.py: Batch importer for optimized DB loading
+## 🛠️ Quick Start
 
-ui/index.html: TailwindCSS-driven frontend application
+### Step 1: Set Up Docker Database
+Run a PostgreSQL container with the pgvector extension:
 
-.gitignore: Protection rules filtering bytecode/local datasets
+docker run --name ayatgar-db -e POSTGRES_PASSWORD=ayatgar2024 -e POSTGRES_DB=ayatgar_db -p 5432:5432 -d pgvector/pgvector:pg16
 
-requirements.txt: Dependencies manifest
+### Step 2: Install Dependencies
+pip install -r requirements.txt
 
-README.md: Documentation
+### Step 3: Run Data Pipeline
+Generate embeddings and import them into the database:
 
-Quick Start Guide
-Step 1: Set Up the Vector Database via Docker
-Ensure your local Docker environment is active, then spin up a PostgreSQL container equipped with pgvector by running the standard docker run command with your database credentials mapped to port 5432.
+python scripts/local_indexer.py
+python scripts/db_importer.py
 
-Step 2: Installation and Environment Configuration
-Clone the repository to your local machine and install the required library manifests directly using the standard Python pip package manager against the requirements.txt file.
+### Step 4: Launch API
+python -m src.main
 
-Step 3: Data Ingestion Pipeline
-If you are setting up the database layers from scratch on your local machine, execute the local indexer script inside the scripts folder to generate the GPU embeddings. Once finished, run the database importer script to safely stream the generated vectors into your running Docker container.
+Access the documentation at: http://127.0.0.1:8000/docs
 
-Step 4: Run the Backend API Server
-Launch the FastAPI gateway locally by executing the module runner command against the src application directory. The API backend will automatically boot up locally on port 8000, allowing you to access the interactive Swagger documentation interface directly at the docs endpoint.
-
-Developed as a testament to building scalable, intelligent semantic applications bridging historical literature with cutting-edge AI orchestration.
+---
+*Developed as a testament to building scalable, intelligent semantic applications.*
