@@ -39,7 +39,7 @@ Powered by **FastAPI** utilizing a connection pool strategy to maintain efficien
 ├── requirements.txt       # Dependencies manifest
 └── README.md              # Documentation
 
-🛠️ Quick Start
+##🛠️ Quick Start
 1. Set Up the Vector Database (Docker)
 Ensure your local Docker environment is active, then spin up a PostgreSQL container equipped with pgvector:
 
