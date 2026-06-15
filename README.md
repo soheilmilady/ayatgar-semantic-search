@@ -38,3 +38,25 @@ Powered by **FastAPI** utilizing a connection pool strategy to maintain efficien
 ├── .gitignore             # Protection rules filtering bytecode/local datasets
 ├── requirements.txt       # Dependencies manifest
 └── README.md              # Documentation
+
+🛠️ Quick Start
+1. Set Up the Vector Database (Docker)
+Ensure your local Docker environment is active, then spin up a PostgreSQL container equipped with pgvector:
+
+Bash
+docker run --name ayatgar-db -e POSTGRES_PASSWORD=ayatgar2024 -e POSTGRES_DB=ayatgar_db -p 5432:5432 -d pgvector/pgvector:pg16
+
+
+2. Installation & Environment Configuration
+Clone the repository and spin up your environment variables:
+
+pip install -r requirements.txt
+
+
+3. Run the Backend Server
+Launch the API gateway locally:
+
+python -m src.main
+The server will boot up at http://127.0.0.1:8000. You can explore the interactive documentation schema at /docs.
+
+Developed as a testament to building scalable, intelligent semantic applications bridging historical literature with cutting-edge AI orchestration.
